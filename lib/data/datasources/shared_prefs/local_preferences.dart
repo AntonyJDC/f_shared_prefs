@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:loggy/loggy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +16,12 @@ class LocalPreferences {
       return prefs.getString(key) as T?;
     } else if (T == List<String>) {
       return prefs.getStringList(key) as T?;
+    } else if (T == Map<String, dynamic>) {
+      String? jsonString = prefs.getString(key);
+      if (jsonString != null) {
+        return jsonDecode(jsonString) as T?;
+      }
+      return null;
     } else {
       throw Exception("Unsupported type");
     }
@@ -39,6 +46,10 @@ class LocalPreferences {
     } else if (value is List<String>) {
       result = await prefs.setStringList(key, value);
       logInfo("LocalPreferences setStringList with key $key got $result");
+    } else if (value is Map<String, dynamic>) {
+      String jsonString = jsonEncode(value);
+      result = await prefs.setString(key, jsonString);
+      logInfo("LocalPreferences setMap with key $key got $result");
     } else {
       throw Exception("Unsupported type");
     }

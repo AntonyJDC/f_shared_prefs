@@ -16,23 +16,34 @@ class SharedPrefLocalAuthSource implements ILocalAuthSource {
   }
 
   @override
-  Future<User> getUserFromEmail(email) async {
-    //TODO: implement getUserFromEmail, return a User object
-    // if no user is found, throw "User not found"
+  Future<User> getUserFromEmail(dynamic email) async {
+    final userData = await _sharedPreferences.retrieveData<Map<String, dynamic>>('user_$email');
+    if (userData != null) {
+      return User(
+        email: userData['email'],
+        password: userData['password'],
+      );
+    } else {
+      throw Exception('User not found');
+    }
   }
 
   @override
   Future<bool> isLogged() async {
-    //TODO: implement isLogged, return a boolean, default is false
+    return await _sharedPreferences.retrieveData<bool>('logged') ?? false;
   }
 
   @override
-  Future<void> signup(email, password) async {
-    //TODO: implement signup, stroe the email and pass on shared preferences
+  Future<void> signup(dynamic email, dynamic password) async {
+    final user = {
+      'email': email,
+      'password': password,
+    };
+    await _sharedPreferences.storeData('user_$email', user);
   }
 
   @override
   Future<void> setLoggedIn() async {
-    //TODO: implement setLoggedIn, store a boolean on shared preferences
+    await _sharedPreferences.storeData('logged', true);
   }
 }
